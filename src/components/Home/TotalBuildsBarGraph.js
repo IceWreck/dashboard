@@ -1,24 +1,33 @@
 import React, { Component } from "react";
-import { Card, CardBody, Spinner } from "@patternfly/react-core";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Spinner,
+  Bullseye,
+} from "@patternfly/react-core";
 import {
   Chart,
   ChartBar,
+  ChartGroup,
+  ChartAxis,
   ChartVoronoiContainer,
 } from "@patternfly/react-charts";
 
 class TotalBuildsBarGraph extends Component {
   state = {
-    tbl_json: "",
-    isLoaded: false,
+    input_json: "",
+    is_loaded: false,
   };
 
   componentDidMount() {
+    // Hardcoding now, but when we integrate it with flask we'll pick up the API_URL from env var.
     fetch("https://other.abifog.com/test.php")
       .then((res) => res.json())
       .then((json) => {
         this.setState({
-          tbl_json: json,
-          isLoaded: true,
+          input_json: json,
+          is_loaded: true,
         });
       })
       .catch((err) => {
@@ -27,29 +36,44 @@ class TotalBuildsBarGraph extends Component {
   }
 
   render() {
-    console.log(this.state);
-    const { isLoaded, tbl_json } = this.state;
+    const { is_loaded, input_json } = this.state;
 
-    if (!isLoaded)
+    if (!is_loaded)
       return (
         <div>
-          <Spinner />
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
         </div>
       );
 
-    let table_data = [];
+    let successful = [];
+    let failed = [];
+    let domain_upper_limit = 0;
 
-    tbl_json.map((item) => {
-      let temp_var = {
-        name: item.date,
+    input_json.map((item) => {
+      let succ_day = {
+        name: "Successful",
         x: item.date,
-        y: item.total_builds,
+        y: item.successful_builds,
       };
-      table_data.push(temp_var);
+
+      if (domain_upper_limit < item.successful_builds)
+        domain_upper_limit = item.successful_builds;
+      successful.push(succ_day);
+      let fail_day = {
+        name: "Failed",
+        x: item.date,
+        y: item.failed_builds,
+      };
+      failed.push(fail_day);
     });
+
+    console.log(domain_upper_limit);
 
     return (
       <Card>
+        <CardHeader>Successful/Failed Builds</CardHeader>
         <CardBody>
           <div style={{ width: "500px" }}>
             <Chart
@@ -61,18 +85,23 @@ class TotalBuildsBarGraph extends Component {
                   constrainToVisibleArea
                 />
               }
-              domain={{ y: [0, 50] }}
+              domain={{ y: [0, domain_upper_limit + 5] }}
               domainPadding={{ x: [30, 25] }}
               height={250}
               padding={{
-                bottom: 50,
-                left: 50,
+                bottom: 60,
+                left: 60,
                 right: 50,
                 top: 50,
               }}
               width={500}
             >
-              <ChartBar barWidth={30} data={table_data} />
+              <ChartAxis label="Days" />
+              <ChartAxis dependentAxis label="Builds" />
+              <ChartGroup offset={20}>
+                <ChartBar barWidth={20} data={successful} />
+                <ChartBar barWidth={20} data={failed} />
+              </ChartGroup>
             </Chart>
           </div>
         </CardBody>

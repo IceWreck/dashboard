@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {
-  Gallery,
-  GalleryItem,
+  Grid,
+  GridItem,
   PageSection,
   PageSectionVariants,
   TextContent,
@@ -9,6 +9,7 @@ import {
 } from "@patternfly/react-core";
 
 import TotalBuildsBarGraph from "./TotalBuildsBarGraph.js";
+
 
 class Home extends Component {
   state = {};
@@ -20,22 +21,21 @@ class Home extends Component {
           <TextContent>
             <Text component="h1">Home</Text>
             <Text component="p">
-              Body text should be Overpass Regular at 16px. It should have
-              leading of 24px because <br />
-              of it’s relative line height of 1.5.
+            Using mock JSON from <a href="https://other.abifog.com/test.php">other.abifog.com/test.php</a> because this data is not yet provided by the API.
             </Text>
           </TextContent>
         </PageSection>
         <PageSection>
-          <GalleryItem>
-            <TotalBuildsBarGraph />
-          </GalleryItem>
+          <Grid gutter="md">
+            <GridItem span={6}>
+              <TotalBuildsBarGraph />
+            </GridItem>
+            <GridItem span={6}>
+              <TotalBuildsBarGraph />
+            </GridItem>
+          </Grid>
         </PageSection>
-        <PageSection style={{height: '15em'}} isFilled={true}>
-        </PageSection>    
-
-
-        
+        <PageSection style={{ height: "15em" }} isFilled={true}></PageSection>
       </div>
     );
   }
